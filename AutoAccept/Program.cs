@@ -12,6 +12,7 @@ namespace AutoAccept
         static async Task Main(string[] args)
         {
             Console.WriteLine("Starting auto-accept...");
+            Console.WriteLine("Attempting to detect game...");
 
             // Resolve game path and info
             LeagueClientInfo info = null;

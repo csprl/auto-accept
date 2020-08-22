@@ -4,6 +4,9 @@
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <Authors>Casper Löfgren</Authors>
+    <Copyright>Casper Löfgren (c) 2020</Copyright>
+    <Description>Automatically accept League of Legends matches.</Description>
+    <ApplicationIcon>accept.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
