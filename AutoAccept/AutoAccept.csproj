@@ -8,6 +8,8 @@
     <Copyright>Casper Löfgren (c) 2020 - 2021</Copyright>
     <Description>Automatically accept League matches.</Description>
     <ApplicationIcon>accept.ico</ApplicationIcon>
+    <AssemblyVersion>1.1.0.0</AssemblyVersion>
+    <Version>1.1.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
