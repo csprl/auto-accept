@@ -28,7 +28,7 @@ namespace AutoAccept.Helpers
         public LCUClient(int port, string password)
         {
             // Disable certificate validation
-            _ws.Options.RemoteCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) => true;
+            ServicePointManager.ServerCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) => true;
 
             // Set credentials
             _ws.Options.Credentials = new NetworkCredential(_username, password);
@@ -96,10 +96,7 @@ namespace AutoAccept.Helpers
         {
             var response = await _httpClient.PostAsync(_baseUrl + "/lol-matchmaking/v1/ready-check/accept", null);
 
-            if (!response.IsSuccessStatusCode)
-            {
-                Console.WriteLine("Failed to accept ready check");
-            }
+            response.EnsureSuccessStatusCode();
         }
 
         private void HandleMessage(string message)

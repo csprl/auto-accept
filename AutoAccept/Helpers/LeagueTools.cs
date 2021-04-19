@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using AutoAccept.Models;
-using Microsoft.Win32;
 
 namespace AutoAccept.Helpers
 {
@@ -10,31 +10,25 @@ namespace AutoAccept.Helpers
     {
         public static string LocateGame()
         {
-            // Attempt to locate by running process
-            foreach (var p in Process.GetProcessesByName("LeagueClient"))
+            // Locate from running processes
+            var path = Process.GetProcessesByName("LeagueClient").Select(p => Path.GetDirectoryName(p.MainModule.FileName)).Where(p => GamePathIsValid(p)).FirstOrDefault();
+            if (string.IsNullOrEmpty(path))
             {
-                var path = Path.GetDirectoryName(p.MainModule.FileName);
-                if (GamePathIsValid(path)) return path;
+                throw new FileNotFoundException();
             }
 
-            // Attempt to locate by registry key
-            /*using var softwareKey = Registry.LocalMachine.OpenSubKey("SOFTWARE");
-            using var lolKey = softwareKey.OpenSubKey("WOW6432Node\\Riot Games\\League of Legends");
-            var gamePath = lolKey.GetValue("Path").ToString();
-            if (GamePathIsValid(gamePath)) return gamePath;*/
-
-            throw new FileNotFoundException();
+            return path;
         }
 
         public static LeagueClientInfo GetClientInfo(string gamePath)
         {
             // Read file
-            using var fileStream = File.Open(Path.Join(gamePath, "lockfile"), FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+            using var fileStream = File.Open(Path.Combine(gamePath, "lockfile"), FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
             using var reader = new StreamReader(fileStream);
             var lockFile = reader.ReadToEnd();
 
             // Split by :
-            var parts = lockFile.Split(":");
+            var parts = lockFile.Split(':');
             if (parts.Length != 5) throw new Exception("Unknown lockfile format");
 
             // Parse content
@@ -57,7 +51,7 @@ namespace AutoAccept.Helpers
             if (!Directory.Exists(path)) return false;
 
             // Check for common League files
-            if (!File.Exists(Path.Join(path, "LeagueClient.exe"))) return false;
+            if (!File.Exists(Path.Combine(path, "LeagueClient.exe"))) return false;
 
             return true;
         }
