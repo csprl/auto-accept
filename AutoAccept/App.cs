@@ -18,7 +18,6 @@ namespace AutoAccept
             // Create taskbar notification tray icon
             _trayIcon = new NotifyIcon()
             {
-                Icon = Icon.ExtractAssociatedIcon(AppDomain.CurrentDomain.FriendlyName),
                 ContextMenu = new ContextMenu(new MenuItem[]
                 {
                     new MenuItem("Exit", Exit)
@@ -34,7 +33,8 @@ namespace AutoAccept
         {
             while (true)
             {
-                _trayIcon.Text = "Attempting to detect game...";
+                _trayIcon.Icon = Properties.Resources.accept_red;
+                _trayIcon.Text = "Waiting for game...";
 
                 // Resolve game path and info
                 LeagueClientInfo info;
@@ -58,7 +58,11 @@ namespace AutoAccept
 
                 // Create LCUClient
                 var client = new LCUClient(info.AppPort, info.AppPassword);
-                client.OnConnected += () => _trayIcon.Text = "Ready";
+                client.OnConnected += () =>
+                {
+                    _trayIcon.Icon = Properties.Resources.accept;
+                    _trayIcon.Text = "Ready";
+                };
 
                 // Register ready check callback
                 client.OnReadyCheck += async () =>
