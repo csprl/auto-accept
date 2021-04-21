@@ -42,6 +42,8 @@ namespace AutoAccept.Helpers
             _baseUrl = $"{(_secure ? "https" : "http")}://127.0.0.1:{_port}";
         }
 
+        public bool IsConnected => _ws.State == WebSocketState.Open;
+
         public async Task Connect()
         {
             // Open WebSocket connection

@@ -12,6 +12,9 @@ namespace AutoAccept
     {
         private readonly NotifyIcon _trayIcon;
 
+        private LCUClient _client;
+        private bool _enabled = true;
+
         public App()
         {
             // Create taskbar notification tray icon
@@ -23,9 +26,25 @@ namespace AutoAccept
                 }),
                 Visible = true
             };
+            _trayIcon.DoubleClick += ToggleState;
 
             // Create worker thread
             new Thread(new ThreadStart(Worker)).Start();
+        }
+
+        private void ToggleState(object sender, EventArgs e)
+        {
+            if (_client?.IsConnected ?? false)
+            {
+                _enabled = !_enabled;
+                UpdateIcon();
+            }
+        }
+
+        private void UpdateIcon()
+        {
+            _trayIcon.Icon = _enabled ? Properties.Resources.accept : Properties.Resources.accept_yellow;
+            _trayIcon.Text = _enabled ? "Ready" : "Paused";
         }
 
         private async void Worker()
@@ -33,7 +52,7 @@ namespace AutoAccept
             while (true)
             {
                 _trayIcon.Icon = Properties.Resources.accept_red;
-                _trayIcon.Text = "Waiting for game...";
+                _trayIcon.Text = "Looking for League...";
 
                 // Resolve game path and info
                 LeagueClientInfo info;
@@ -44,7 +63,7 @@ namespace AutoAccept
                 }
                 catch (FileNotFoundException)
                 {
-                    Thread.Sleep(5000);
+                    await Task.Delay(5000);
                     continue;
                 }
                 catch
@@ -56,16 +75,20 @@ namespace AutoAccept
                 _trayIcon.Text = $"Found LeagueClient ({info.ProcessId})";
 
                 // Create LCUClient
-                var client = new LCUClient(info.AppPort, info.AppPassword);
-                client.OnConnected += () =>
+                _client = new LCUClient(info.AppPort, info.AppPassword);
+                _client.OnConnected += () =>
                 {
-                    _trayIcon.Icon = Properties.Resources.accept;
-                    _trayIcon.Text = "Ready";
+                    UpdateIcon();
                 };
 
                 // Register ready check callback
-                client.OnReadyCheck += async () =>
+                _client.OnReadyCheck += async () =>
                 {
+                    if (!_enabled)
+                    {
+                        return;
+                    }
+
                     // Wait for a short while before accepting
                     await Task.Delay(100);
 
@@ -74,7 +97,7 @@ namespace AutoAccept
                     {
                         try
                         {
-                            await client.AcceptReadyCheck();
+                            await _client.AcceptReadyCheck();
                             break;
                         }
                         catch
@@ -87,7 +110,7 @@ namespace AutoAccept
                 // Connect to websocket
                 try
                 {
-                    await client.Connect();
+                    await _client.Connect();
                 }
                 catch
                 {

@@ -79,5 +79,15 @@ namespace AutoAccept.Properties {
                 return ((System.Drawing.Icon)(obj));
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Icon similar to (Icon).
+        /// </summary>
+        internal static System.Drawing.Icon accept_yellow {
+            get {
+                object obj = ResourceManager.GetObject("accept_yellow", resourceCulture);
+                return ((System.Drawing.Icon)(obj));
+            }
+        }
     }
 }
