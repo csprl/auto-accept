@@ -1,15 +1,10 @@
-﻿namespace AutoAccept.Models
+﻿namespace AutoAccept.Models;
+
+internal class LeagueClientInfo
 {
-    class LeagueClientInfo
-    {
-        public string Name { get; set; }
-
-        public int ProcessId { get; set; }
-
-        public int AppPort { get; set; }
-
-        public string AppPassword { get; set; }
-
-        public string AppProtocol { get; set; }
-    }
+    public required string Name { get; init; }
+    public int ProcessId { get; init; }
+    public int Port { get; init; }
+    public required string Password { get; init; }
+    public required string Protocol { get; init; }
 }
